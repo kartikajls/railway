@@ -4,6 +4,7 @@ import (
 	"customer-api/database"
 	"database/sql"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +28,12 @@ func main() {
 	router.PUT("/customers/:id", UpdateCustomer)    // mengambil database berdasarkan dat yang dibuat di POST
 	router.DELETE("/customers/:id", DeleteCustomer) // menghapus database yang diinginkan
 
-	router.Run(":8080") // server berjalan di localhost:8080
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+	router.Run(":" + port) // digunakan untuk deploy di port railway
 }
 
 // membuat function get customer untuk melihat semua database
