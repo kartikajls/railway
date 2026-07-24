@@ -21,15 +21,16 @@ func main() {
 	database.ConnectDB()
 	router := gin.Default()
 
-	router.GET("/customers", GetCustomers)
-	router.GET("/customers/:id", GetCustomer)
-	router.POST("/customers", CreateCustomer)
-	router.PUT("/customers/:id", UpdateCustomer)
-	router.DELETE("/customers/:id", DeleteCustomer)
+	router.GET("/customers", GetCustomers)          // melihat keseluruhan database
+	router.GET("/customers/:id", GetCustomer)       // melihat database berdasarkan id
+	router.POST("/customers", CreateCustomer)       // membuat database
+	router.PUT("/customers/:id", UpdateCustomer)    // mengambil database berdasarkan dat yang dibuat di POST
+	router.DELETE("/customers/:id", DeleteCustomer) // menghapus database yang diinginkan
 
-	router.Run(":8080")
+	router.Run(":8080") // server berjalan di localhost:8080
 }
 
+// membuat function get customer untuk melihat semua database
 func GetCustomers(c *gin.Context) {
 
 	rows, err := database.DB.Query("SELECT id,name,email,phone,created_at,update_at FROM customers")
@@ -64,7 +65,7 @@ func GetCustomers(c *gin.Context) {
 
 func GetCustomer(c *gin.Context) {
 
-	id := c.Param("id")
+	id := c.Param("id") // digunakan untuk mengambil nilai parameter pada url customers/id
 
 	var customer Customer
 
@@ -89,6 +90,7 @@ func GetCustomer(c *gin.Context) {
 	c.JSON(http.StatusOK, customer)
 }
 
+// membuat function create customer untuk membuat database
 func CreateCustomer(c *gin.Context) {
 
 	var customer Customer
@@ -115,6 +117,7 @@ func CreateCustomer(c *gin.Context) {
 	})
 }
 
+// membuat function update customer untuk mengambil database yang telah dibuat pada function POST
 func UpdateCustomer(c *gin.Context) {
 
 	id := c.Param("id")
@@ -144,6 +147,7 @@ func UpdateCustomer(c *gin.Context) {
 	})
 }
 
+// membuat function delete customer untuk menghapus customer
 func DeleteCustomer(c *gin.Context) {
 
 	id := c.Param("id")
