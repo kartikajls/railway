@@ -14,7 +14,7 @@ var DB *sql.DB
 
 func ConnectDB() {
 
-	err := godotenv.Load("config/.env")
+	err := godotenv.Load("") //diisi config/.env untuk membuka port
 
 	if err != nil {
 		log.Fatal("Error Loading .env")
