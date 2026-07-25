@@ -1,0 +1,327 @@
+openapi: 3.0.3
+
+info:
+  title: Customer API
+  version: 1.0.0
+  description: REST API for managing customer data.
+
+servers:
+  - url: http://localhost:8080
+    description: Local Development
+
+tags:
+  - name: Customers
+    description: Customer Management API
+
+paths:
+  /api/v1/customers:
+    get:
+      tags:
+        - Customers
+      summary: Get all customers
+      description: Retrieve all customer records.
+      operationId: getCustomers
+      responses:
+        "200":
+          description: Successfully retrieved customers.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerListResponse"
+
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - Customers
+      summary: Create customer
+      description: Create a new customer.
+      operationId: createCustomer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCustomerRequest"
+
+      responses:
+        "201":
+          description: Customer created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/customers/{id}:
+    get:
+      tags:
+        - Customers
+      summary: Get customer by ID
+      description: Retrieve a customer by ID.
+      operationId: getCustomerById
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Customer ID
+          schema:
+            type: integer
+            example: 1
+
+      responses:
+        "200":
+          description: Customer found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+
+        "404":
+          description: Customer not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Customers
+      summary: Update customer
+      description: Update customer information.
+      operationId: updateCustomer
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCustomerRequest"
+
+      responses:
+        "200":
+          description: Customer updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+        "404":
+          description: Customer not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Customers
+      summary: Delete customer
+      description: Delete customer by ID.
+      operationId: deleteCustomer
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+
+      responses:
+        "200":
+          description: Customer deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+        "404":
+          description: Customer not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+
+        name:
+          type: string
+          example: John Doe
+
+        email:
+          type: string
+          format: email
+          example: johndoe@gmail.com
+
+        phone:
+          type: string
+          example: "081234567890"
+
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-07-25T08:00:00Z"
+
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-07-25T08:30:00Z"
+
+    CreateCustomerRequest:
+      type: object
+      required:
+        - name
+        - email
+        - phone
+
+      properties:
+        name:
+          type: string
+          example: John Doe
+
+        email:
+          type: string
+          format: email
+          example: johndoe@gmail.com
+
+        phone:
+          type: string
+          example: "081234567890"
+
+    UpdateCustomerRequest:
+      type: object
+
+      properties:
+        name:
+          type: string
+          example: John Doe Updated
+
+        email:
+          type: string
+          format: email
+          example: johnupdated@gmail.com
+
+        phone:
+          type: string
+          example: "089876543210"
+
+    CustomerResponse:
+      type: object
+
+      properties:
+        responseCode:
+          type: string
+          example: "200"
+
+        responseMessage:
+          type: string
+          example: Success
+
+        responseData:
+          $ref: "#/components/schemas/Customer"
+
+    CustomerListResponse:
+      type: object
+
+      properties:
+        responseCode:
+          type: string
+          example: "200"
+
+        responseMessage:
+          type: string
+          example: Success
+
+        responseData:
+          type: array
+          items:
+            $ref: "#/components/schemas/Customer"
+
+    SuccessResponse:
+      type: object
+
+      properties:
+        responseCode:
+          type: string
+          example: "200"
+
+        responseMessage:
+          type: string
+          example: Success
+
+        responseData:
+          nullable: true
+          example: null
+
+    ErrorResponse:
+      type: object
+
+      properties:
+        responseCode:
+          type: string
+          example: "500"
+
+        responseMessage:
+          type: string
+          example: Internal Server Error
+
+        responseData:
+          nullable: true
+          example: null
