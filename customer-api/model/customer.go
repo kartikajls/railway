@@ -1,7 +1,7 @@
 package model
 
 type Customer struct {
-	ID        int    `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	Phone     string `json:"phone"`
@@ -24,7 +24,7 @@ type UpdateCustomerRequest struct {
 type DeleteCustomerRequest struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
-	Phone string `json:"phone"`
+	Phone int64  `json:"phone"`
 }
 
 type Response struct {

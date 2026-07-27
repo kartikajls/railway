@@ -4,35 +4,32 @@ import (
 	"customer-api/database"
 	"customer-api/model"
 	"database/sql"
+	"log"
 	"net/http"
-	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
+
+var db *sql.DB
 
 func main() {
 
 	// Connect Database
 	database.ConnectDB() //connect ke database DB
 
+	db = database.DB
 	router := gin.Default()
-	router.SetTrustedProxies(nil) //digunakan agar GIN dapat berjalan disemua proxy
 
-	api := router.Group("/api/v1") // didefinisikan untuk server localhost sudah beraada pada /api/v1
-	{
-		api.GET("/customers", GetCustomers)          // membuat API untuk melihat semua data customers
-		api.GET("/customers/:id", GetCustomerByID)   // membuat API untuk melihat data customers by id
-		api.POST("/customers", CreateCustomer)       // untuk create database customer
-		api.PUT("//customers/:id", UpdateCustomer)   // untuk mengupdate database customer jika ingin diganti
-		api.DELETE("/customers/:id", DeleteCustomer) // untuk menghapus database customer jika ingin dihapus
-	}
+	router.GET("/api/v1/customers", GetCustomers)          // membuat API untuk melihat semua data customers
+	router.GET("/api/v1/customers/:id", GetCustomerByID)   // membuat API untuk melihat data customers by id
+	router.POST("/api/v1/customers", CreateCustomer)       // untuk create database customer
+	router.PUT("/api/v1/customers/:id", UpdateCustomer)    // untuk mengupdate database customer jika ingin diganti
+	router.DELETE("/api/v1/customers/:id", DeleteCustomer) // untuk menghapus database customer jika ingin dihapus
 
-	port := os.Getenv("PORT") //di setting untuk di deploy pada railway
-	if port == "" {
-		port = "8080"
-	}
-
-	router.Run(":" + port)
+	log.Println("Server running at :8080")
+	router.Run(":8080")
 }
 
 func GetCustomers(c *gin.Context) {
@@ -86,7 +83,11 @@ func GetCustomers(c *gin.Context) {
 		customers = append(customers, customer)
 	}
 
-	c.JSON(http.StatusOK, customers)
+	c.JSON(http.StatusOK, model.Response{
+		ResponseCode:    "200",
+		ResponseMessage: "Successfully retrieved customers.",
+		ResponseData:    customers,
+	})
 }
 
 func GetCustomerByID(c *gin.Context) {
@@ -132,7 +133,11 @@ func GetCustomerByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, customer)
+	c.JSON(http.StatusOK, model.Response{
+		ResponseCode:    "200",
+		ResponseMessage: "Customer found.",
+		ResponseData:    customer,
+	})
 }
 
 func CreateCustomer(c *gin.Context) {
@@ -148,10 +153,27 @@ func CreateCustomer(c *gin.Context) {
 		return
 	}
 
-	result, err := database.DB.Exec(`
+	stmt, err := db.Prepare(`
 		INSERT INTO customers(name,email,phone)
 		VALUES(?,?,?)
-	`, req.Name, req.Email, req.Phone)
+	`)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.Response{
+			ResponseCode:    "500",
+			ResponseMessage: err.Error(),
+			ResponseData:    nil,
+		})
+		return
+	}
+
+	defer stmt.Close()
+
+	result, err := stmt.Exec(
+		req.Name,
+		req.Email,
+		req.Phone,
+	)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.Response{
@@ -175,7 +197,15 @@ func CreateCustomer(c *gin.Context) {
 
 func UpdateCustomer(c *gin.Context) {
 
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.Response{
+			ResponseCode:    "400",
+			ResponseMessage: err.Error(),
+			ResponseData:    nil,
+		})
+		return
+	}
 
 	var req model.UpdateCustomerRequest
 

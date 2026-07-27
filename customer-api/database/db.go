@@ -7,18 +7,11 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 var DB *sql.DB
 
 func ConnectDB() {
-
-	err := godotenv.Load("config/.env") //diisi config/.env untuk membuka port
-
-	if err != nil {
-		log.Fatal("Error Loading .env")
-	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		os.Getenv("DB_USER"),
@@ -28,6 +21,7 @@ func ConnectDB() {
 		os.Getenv("DB_NAME"),
 	)
 
+	var err error
 	DB, err = sql.Open("mysql", dsn)
 
 	if err != nil {
