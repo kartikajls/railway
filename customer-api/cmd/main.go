@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -18,8 +19,8 @@ func main() {
 
 	// Connect Database
 	database.ConnectDB() //connect ke database DB
-
 	db = database.DB
+
 	router := gin.Default()
 
 	router.GET("/api/v1/customers", GetCustomers)          // membuat API untuk melihat semua data customers
@@ -28,8 +29,15 @@ func main() {
 	router.PUT("/api/v1/customers/:id", UpdateCustomer)    // untuk mengupdate database customer jika ingin diganti
 	router.DELETE("/api/v1/customers/:id", DeleteCustomer) // untuk menghapus database customer jika ingin dihapus
 
-	log.Println("Server running at :8080")
-	router.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("Server running on port", port)
+	if err := router.Run(":" + port); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func GetCustomers(c *gin.Context) {
