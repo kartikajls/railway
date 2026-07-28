@@ -49,7 +49,7 @@ func GetCustomers(c *gin.Context) {
 			email,
 			phone,
 			created_at,
-			update_at
+			updated_at
 		FROM customers
 	`)
 
