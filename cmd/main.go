@@ -1,12 +1,12 @@
 package main
 
 import (
-	"customer-api/database"
-	"customer-api/model"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
+	"railway/database"
+	"railway/model"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +49,7 @@ func GetCustomers(c *gin.Context) {
 			email,
 			phone,
 			created_at,
-			updated_at
+			update_at
 		FROM customers
 	`)
 
